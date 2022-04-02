@@ -1,6 +1,8 @@
 # satranc
 Pythonda basit satranç kodu
 
+Oynamak için tahta.py çalıştırmalısınız.
+
 --Bilinen hatalar
 
 1-Rok atarken şahın ya da kalenin daha önceden hareket edildiği kontrol edilmiyor bu yüzden şahı ileri geri oynayıp halen rok atabilirsiniz.
