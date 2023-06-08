@@ -7,7 +7,6 @@ sira = 0
 
 while taslar.bt(4) != 0 and taslar.st(4) != 0:
 
-
     for y in range(1,9):
 
         if y == 1:
@@ -109,14 +108,10 @@ while taslar.bt(4) != 0 and taslar.st(4) != 0:
                     taslar.bt(2,nl)
                     sira+=1
 
-
     print("\n\n\n\n\n\n\n\n")
-
 
 if taslar.bt(4) == 0:
     print("SİYAH KAZANDİ!")
 else:
     print("BEYAZ KAZANDİ!")
-
-
-
+    
