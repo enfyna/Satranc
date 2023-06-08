@@ -107,8 +107,4 @@ def kontrol(s=0,t=0,beyaz=[],siyah=[],ol=0,nl=0): # s -> 0:dikey 1:capraz
                         #print(4)
                         return 0
 
-
-
-
-
     return 1
