@@ -1,12 +1,13 @@
 import Tas
 
-tahta = [[[None,0] for _ in range(8)] for _ in range(8)]
-# None o karede tehdit var mı onu kaydediyor 
-# Mesela 1e esit ise beyaz o kareyi tehdit ediyor.
-# 0 ise o karede bulunan taşı kaydediyor
-taslar = []
-
 def oyunuBaslat():
+    tahta = [[[None,0] for _ in range(8)] for _ in range(8)]
+    # None -> o karede tehdit var mı onu kaydediyor 
+    # Mesela 1e esit ise beyaz o kareyi tehdit ediyor.
+    # ---
+    # 0 -> ise o karede bulunan taşı kaydediyor
+    taslar = []
+    
     for i in range(8):
         taslar.append(Tas.Piyon(i, 1, 1, tahta))
         taslar.append(Tas.Piyon(i, 6, -1, tahta))
@@ -20,30 +21,50 @@ def oyunuBaslat():
         taslar.append(Tas.Fil(i, 0, 1, tahta))
         taslar.append(Tas.Fil(i, 7, -1, tahta))
 
-    taslar.append(Tas.Kral(3, 7, -1, tahta))
-    taslar.append(Tas.Kralice(4, 7, -1, tahta))
+    taslar.append(Tas.Kral(4, 7, -1, tahta))
+    taslar.append(Tas.Kralice(3, 7, -1, tahta))
 
-    taslar.append(Tas.Kral(3, 0, 1, tahta))
-    taslar.append(Tas.Kralice(4, 0, 1, tahta))
+    taslar.append(Tas.Kral(4, 0, 1, tahta))
+    taslar.append(Tas.Kralice(3, 0, 1, tahta))
 
-def tahtaGuncelle():
-    # Tahtayı sıfırla
-    tahta = [[[None,0] for _ in range(8)] for _ in range(8)]
+    return tahta , taslar
 
+def tahtaGuncelle(tahta , taslar):
+    for i in range(len(tahta)): # tahtayi sifirla
+        for j in range(len(tahta)):
+            tahta[i][j][0] = None
+            tahta[i][j][1] = 0
+    
     for i in taslar: # Taslari diz
-        tahta[i.posY][i.posX][1] = str(i)
+        tahta[i.posY][i.posX][1] = i
 
     for i in taslar: # Taslarin tehditlerini hesapla
         i.tehdit()
 
     return taslar
 
-def yazdir():
-    for i in range(7,-1,-1): 
+def yazdir(tahta , taslar):
+    print("\n")
+    for i in range(7,-1,-1):
+        print(i+1,end=" - ")    
+        for j in range(8):
+            print(tahta[i][j][1],end=" ")
+        print("")
+    print("    ",end="")
+    for i in range(8):
+        print("|",end=" ")
+    print("\n    ",end="")
+    for i in ["A","B","C","D","E","F","G","H"]:
         print(i,end=" ")
-        print(tahta[i])
+    print("\n")
+
+def gidebilir(x,y,tahta):
+    if isinstance(tahta[y][x][1],Tas.Tas):
+        return tahta[y][x][1].gidebilir()
+    return []
 
 if __name__ == "__main__":
-    oyunuBaslat()
-    tahtaGuncelle()
-    yazdir()
+    tahta , taslar = oyunuBaslat()
+    tahtaGuncelle(tahta , taslar)
+    yazdir(tahta , taslar)
+    
