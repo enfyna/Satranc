@@ -2,14 +2,6 @@ from time import sleep
 import pygame
 import Tahta
 
-## 1- Tas Sec fonksiyonu ekle ona gore gidilebilen yerleri ciz
-
-## 2- Ondan sonra cizilen kareleri kaydet eger oyucu cizilen kareye tiklarsa tasi oraya oyna
-
-## 3- Sıra ekle beyaz siyah arasında
-
-## 4- Şah çekme ve oyunun bitmesini ekle
-
 def tahtayiciz(display):
     # Arkaplanı siyah yap
     display.fill((0,0,0))
@@ -21,7 +13,23 @@ def tahtayiciz(display):
             pygame.draw.rect(display, (100 , 100 , 100), [x,y,squareSize,squareSize])
 
 def taslariciz():
-    for i in Tahta.tahtaGuncelle(tahta , taslar):
+    t = Tahta.tahtaGuncelle(tahta , taslar)
+    if isinstance(t,int):
+        pygame.draw.rect(display,
+            (50*t+100 ,50*t+100  , 50*t+100 ),
+            [10,10,boardSize-20,boardSize-20],
+            border_radius=20
+        )
+        t = "Beyaz" if t == 1 else "Siyah"
+        text = font.render(str(t)+str(" Kaybetti."), False, (0,0,0))
+
+        textRect = text.get_rect()
+
+        textRect.center = (boardSize/2,boardSize/2)
+
+        display.blit(text, textRect)
+        return
+    for i in t:
         renk = 50*i.takim+100
 
         pygame.draw.rect(display,
@@ -29,30 +37,14 @@ def taslariciz():
             [i.posX*squareSize+10,i.posY*squareSize+10,squareSize-20,squareSize-20],
             border_radius=20
         )
-        # create a text surface object,
-        # on which text is drawn on it.
         text = font.render(i.isim, False, (0,0,0))
 
-        # create a rectangular object for the
-        # text surface object
         textRect = text.get_rect()
 
-        # set the center of the rectangular object.
         textRect.center = (i.posX*squareSize+squareSize/2,i.posY*squareSize+squareSize/2)
 
-        # copying the text surface object
-        # to the display surface object
-        # at the center coordinate.
         display.blit(text, textRect)
 
-def gidilebilenyerlericiz(x,y):
-    for i in Tahta.gidebilir(x,y,tahta):
-        renk = (255,0,0)
-        pygame.draw.rect(display,renk,
-            [i[0]*squareSize+30,i[1]*squareSize+30,squareSize-60,squareSize-60],
-            border_radius=20
-        )
-    pass
 def tehditedilenyerlericiz():
     for j in taslar:
         for i in j.gidebilir():
@@ -61,18 +53,51 @@ def tehditedilenyerlericiz():
                 [i[0]*squareSize+30,i[1]*squareSize+30,squareSize-60,squareSize-60],
                 border_radius=20
             )
+
+def oyun(x,y):
+    global seciliTas
+    global gidebilir
+    global sira
+    global takim
+    # Secili tas varsa ve bu tasin gidebileceği bir 
+    # konuma tiklanmissa tasi oraya gotur
+    if seciliTas:  
+        if len(gidebilir) < 0:
+            return
+        if [x,y] in gidebilir:
+            Tahta.gotur(seciliTas,x,y,tahta)
+            sira += 1
+            seciliTas = ()
+            gidebilir = []
+            ekranguncelle(display)
+            return
+    # Secili tas yoksa 
+    # Tiklanan karede tas varsa onu sec ve gidebilecegi yerleri hesapla ve goster
+    gidebilir , tastakim = Tahta.gidebilir(x, y, tahta)
+    if len(gidebilir) == 0:
+        return
+    if takim[sira%2] == tastakim: 
+        seciliTas = (x,y)
+        for i in gidebilir:
+            renk = (255,0,0)
+            pygame.draw.rect(display,renk,
+                [i[0]*squareSize+30,i[1]*squareSize+30,squareSize-60,squareSize-60],
+                border_radius=20
+            )
     pass
 
 def ekranguncelle(display,x = None ,y = None):
     tahtayiciz(display)
     taslariciz()
-
-    tehditedilenyerlericiz()
+    #tehditedilenyerlericiz()
     if x != None and y != None:
-        gidilebilenyerlericiz(x,y)
+        oyun(x,y)
+
+    Tahta.yazdir(tahta, taslar)
 
     # Flip the display
     pygame.display.flip()
+
 
 pygame.init()
 
@@ -87,6 +112,12 @@ font = pygame.font.Font('freesansbold.ttf', 32)
 # Pencere başlığı
 pygame.display.set_caption("Satranç")
 
+# Oyun değişkenleri
+seciliTas : tuple = ()
+gidebilir : list = []
+takim : list = [1,-1]
+sira : int = 0
+
 # Tahtayı baslat
 tahta , taslar = Tahta.oyunuBaslat()
 
@@ -94,7 +125,7 @@ tahta , taslar = Tahta.oyunuBaslat()
 ekranguncelle(display)
 
 running = True
-while running: # (taslar.bt(4) != 0 and taslar.st(4) != 0) and
+while running:
     sleep(.05)
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -106,5 +137,4 @@ while running: # (taslar.bt(4) != 0 and taslar.st(4) != 0) and
             if mouse_presses[0]:
                 x , y = map(lambda v : v // squareSize , pygame.mouse.get_pos())
                 ekranguncelle(display,x,y)
-
 pygame.quit()
