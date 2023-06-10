@@ -1,24 +1,27 @@
 class Tas:
-    posX : int
-    posY : int
+    posX  : int
+    posY  : int
+    isim  : str
+    renk  : tuple
     takim : int
-    renk : tuple
-    isim : str
     tahta : list
+    yasiyor : bool = True
     def __init__(self,x,y,t,r,i,ta):
-        self.posX = x
-        self.posY = y
+        self.posX, self.posY = x, y
         self.takim = t
-        self.renk = r
-        self.isim = i
+        self.renk  = r
+        self.isim  = i
         self.tahta = ta
     def tehdit(self):
         for x,y in self.gidebilir():
             self.isaretle(x, y)
-        return
     def hareket(self,x,y):
-        pass
-    def gidebilirYon(self,yon,mesafe = 9):
+        if self.isinBoard(x, y):
+            if isinstance(self.tahta[y][x][1],Tas):
+                self.tahta[y][x][1].yasiyor = False
+            self.posX = x
+            self.posY = y
+    def gidebilirYon(self,yon,mesafe = 9,piyonduz = False,piyoncapraz = False,kral = False):
         konumlar = []
         for d in yon:
             x = self.posX
@@ -27,28 +30,36 @@ class Tas:
                 x += d[0]
                 y += d[1]
                 if not self.isinBoard(x, y):
-                    #tahta dışına çıktık
+                    #tahta dışına çıktık devam etmeye gerek yok
                     break
                 if isinstance(self.tahta[y][x][1],Tas):
                     # Gidilebilen konumda tas varsa tasin karsi takimdan olmasi lazim
-                    if self.tahta[y][x][1].takim != self.takim:
+                    # Piyon hariç piyon herhangi bir taş varsa ilerleyemez
+                    if self.tahta[y][x][1].takim != self.takim and not piyonduz:
                         konumlar.append([x,y])
                     break
-                konumlar.append([x,y])
+                if not piyoncapraz and not kral:
+                    # Piyon değilsek ve konumda tas yoksa gidebiliriz
+                    konumlar.append([x,y])
+                elif kral:
+                    if self.tahta[y][x][0] == None:
+                        konumlar.append([x,y])
+                        continue
+                    # Kral tehdit edilen yerlere gidemez
+                    if self.tahta[y][x][0] == 0 or self.tahta[y][x][0] != self.takim:
+                        continue         
+                    konumlar.append([x,y])
         return konumlar
     def isaretle(self,x,y):
         if self.tahta[y][x][0] == None:
             self.tahta[y][x][0] = self.takim
-        elif self.tahta[y][x][0] == self.takim:
-            return
-        else:
+        elif self.tahta[y][x][0] != self.takim:
             self.tahta[y][x][0] = 0
-        return
+        else:
+            pass
     def isinBoard(self,x,y):
         """Verilen koordinat tahtanın içinde mi"""
-        if max(0,min(7,x)) != x or max(0,min(7,y)) != y:
-            return False
-        return True
+        return max(0,min(7,x)) == x and max(0,min(7,y)) == y
     def __repr__(self):
         return self.isim
     pass
@@ -59,39 +70,20 @@ class Piyon(Tas):
         r = (10,10,10) if takim == 0 else (100,100,100)
         super().__init__(x, y,takim,r,"P",tahta)
     def gidebilir(self):
-        # Normal durumda piyonun gidebileceği tek bir konum var
-        # İlk defa hereket ediliyorsa 2 konum var
+        # Normal durumda piyon 1 kare ilerleyebilir
+        # İlk defa hereket ediliyorsa 2 kare ilerleyebilir 
         # caprazinda dusman varsa capraz da gidebilir
-        konumlar = []
         u = 2 if self.ilkhareket else 1
-        for i in range(1,1+u):
-            y = self.posY + (self.takim*i)
-            x = self.posX
-            if not self.isinBoard(x, y):
-                continue
-            if not isinstance(self.tahta[y][x][1],Tas):
-                # Gidilebilen konumda tas yoksa sorun yok
-                konumlar.append([x,y])
-                continue
-            elif isinstance(self.tahta[y][x][1],Tas):
-                # Gidilebilen konumda tas varsa piyon ilerleyemez
-                break
-        for i in range(-1,2,2):
-            y = self.posY + (self.takim)
-            x = self.posX + i
-            if not self.isinBoard(x, y):
-                continue
-            if isinstance(self.tahta[y][x][1],Tas) and self.tahta[y][x][1].takim != self.takim:
-                # Gidilebilen konumda dusman tas varsa piyon capraz gidebilir
-                konumlar.append([x,y])
-        return konumlar
+
+        return  self.gidebilirYon(
+            [[0,self.takim]],u,piyonduz=True # Dikey 1 veya 2 konum gidebilir
+            ) + self.gidebilirYon(
+            [[-1,self.takim],[1,self.takim]],1,piyoncapraz=True # Caprazinda dusman varsa gidebilir
+            )
     def tehdit(self):
         # Piyonun tehdit edebileceği 2 konum var
-        for i in range(-1,2,2):
-            x = self.posX + i
-            y = self.posY + self.takim
-            if self.isinBoard(x, y): # Tehdit ettiği konum tahtanin içindeyse işaretle
-                self.isaretle(x, y)
+        for x,y in self.gidebilirYon([[-1,int(self.takim)],[1,int(self.takim)]],1):
+            self.isaretle(x, y)
 
 class At(Tas):
     def __init__(self,x,y,takim,tahta):
@@ -128,4 +120,4 @@ class Kral(Tas):
         r = (75,75,75) if takim == 0 else (175,175,175)
         super().__init__(x, y,takim,r,"+",tahta)
     def gidebilir(self):
-        return self.gidebilirYon([[1,1],[1,-1],[-1,1],[-1,-1],[0,1],[0,-1],[1,0],[-1,0]],1)
+        return self.gidebilirYon([[1,1],[1,-1],[-1,1],[-1,-1],[0,1],[0,-1],[1,0],[-1,0]],1,kral=True)
