@@ -13,7 +13,7 @@ class Tas:
         self.isim  = i
         self.tahta = ta
     def tehdit(self):
-        for x,y in self.gidebilir():
+        for x,y in self.gidebilecegi_yerler():
             self.isaretle(x, y)
     def hareket(self,x,y):
         if self.isinBoard(x, y):
@@ -47,16 +47,16 @@ class Tas:
                         continue
                     # Kral tehdit edilen yerlere gidemez
                     if self.tahta[y][x][0] == 0 or self.tahta[y][x][0] != self.takim:
-                        continue         
+                        continue
                     konumlar.append([x,y])
         return konumlar
     def isaretle(self,x,y):
         if self.tahta[y][x][0] == None:
             self.tahta[y][x][0] = self.takim
-        elif self.tahta[y][x][0] != self.takim:
-            self.tahta[y][x][0] = 0
+        elif self.tahta[y][x][0] == self.takim:
+            return
         else:
-            pass
+            self.tahta[y][x][0] = 0
     def isinBoard(self,x,y):
         """Verilen koordinat tahtanın içinde mi"""
         return max(0,min(7,x)) == x and max(0,min(7,y)) == y
@@ -69,9 +69,9 @@ class Piyon(Tas):
     def __init__(self,x,y,takim,tahta):
         r = (10,10,10) if takim == 0 else (100,100,100)
         super().__init__(x, y,takim,r,"P",tahta)
-    def gidebilir(self):
+    def gidebilecegi_yerler(self):
         # Normal durumda piyon 1 kare ilerleyebilir
-        # İlk defa hereket ediliyorsa 2 kare ilerleyebilir 
+        # İlk defa hereket ediliyorsa 2 kare ilerleyebilir
         # caprazinda dusman varsa capraz da gidebilir
         u = 2 if self.ilkhareket else 1
 
@@ -90,34 +90,34 @@ class At(Tas):
         r = (30,30,30) if takim == 0 else (130,130,130)
         super().__init__(x, y,takim,r,"A",tahta)
         return
-    def gidebilir(self):
+    def gidebilecegi_yerler(self):
         return self.gidebilirYon([[2,1],[2,-1],[-2,1],[-2,-1],[1,2],[1,-2],[-1,2],[-1,-2]],1)
 
 class Kale(Tas):
     def __init__(self,x,y,takim,tahta):
         r = (20,20,20) if takim == 0 else (120,120,120)
         super().__init__(x, y,takim,r,"K",tahta)
-    def gidebilir(self):
+    def gidebilecegi_yerler(self):
         return self.gidebilirYon([[0,1],[0,-1],[1,0],[-1,0]])
 
 class Fil(Tas):
     def __init__(self,x,y,takim,tahta):
         r = (30,30,30) if takim == 0 else (130,130,130)
         super().__init__(x, y,takim,r,"F",tahta)
-    def gidebilir(self):
+    def gidebilecegi_yerler(self):
         return self.gidebilirYon([[1,1],[1,-1],[-1,1],[-1,-1]])
 
-class Kralice(Tas):
+class Vezir(Tas):
     def __init__(self,x,y,takim,tahta):
         r = (50,50,50) if takim == 0 else (150,150,150)
-        super().__init__(x, y,takim,r,"Q",tahta)
+        super().__init__(x, y,takim,r,"V",tahta)
         return
-    def gidebilir(self):
+    def gidebilecegi_yerler(self):
         return self.gidebilirYon([[1,1],[1,-1],[-1,1],[-1,-1],[0,1],[0,-1],[1,0],[-1,0]])
-        
-class Kral(Tas):
+
+class Şah(Tas):
     def __init__(self,x,y,takim,tahta):
         r = (75,75,75) if takim == 0 else (175,175,175)
-        super().__init__(x, y,takim,r,"+",tahta)
-    def gidebilir(self):
+        super().__init__(x, y,takim,r,"Ş",tahta)
+    def gidebilecegi_yerler(self):
         return self.gidebilirYon([[1,1],[1,-1],[-1,1],[-1,-1],[0,1],[0,-1],[1,0],[-1,0]],1,kral=True)
