@@ -2,10 +2,12 @@ import Tas
 
 def oyunu_baslat():
     tahta = [[[None,0] for _ in range(8)] for _ in range(8)]
-    # None -> o karede tehdit var mı onu kaydediyor
-    # Mesela 1e esit ise beyaz o kareyi tehdit ediyor.
-    # ---
-    # 0 -> ise o karede bulunan taşı kaydediyor
+    # tahta[y][x][tehdit][tas]
+    # y : tahta y ekseni
+    # x : tahta x ekseni
+    # tehdit : tahtadaki taslarin tehditlerine gore 
+    # None, 1, -1 ve ya 0 olabilir
+    # tas : o karede bulunan tasi gosterir
     taslar = []
 
     for i in range(8):
@@ -58,31 +60,3 @@ def gidebilecegi_yerler(x,y,tahta):
 def tasi_oyna(tk,x,y,tahta):
     if isinstance(tahta[tk[1]][tk[0]][1],Tas.Tas):
         tahta[tk[1]][tk[0]][1].hareket(x,y)
-
-def tehdit_yazdir(tahta , taslar):
-    print("\n")
-    for i in range(8):#7,-1,-1):
-        print(i+1,end=" - ")
-        for j in range(8):
-            if tahta[i][j][0] == None:
-                print(" N",end=" ")
-                continue
-            elif tahta[i][j][0] > -1:
-                print(" "+str(tahta[i][j][0]),end=" ")
-                continue
-            print(tahta[i][j][0],end=" ")
-        print("")
-    print("    ",end="")
-    for i in range(8):
-        print(" |",end=" ")
-    print("\n    ",end="")
-    for i in [" A"," B"," C"," D"," E"," F"," G"," H"]:
-        print(i,end=" ")
-    print("\n")
-
-
-if __name__ == "__main__":
-    tahta , taslar = oyunu_baslat()
-
-    tahta_guncelle(tahta , taslar)
-    yazdir(tahta , taslar)
