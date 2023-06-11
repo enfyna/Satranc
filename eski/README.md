@@ -1,5 +1,5 @@
 # satranc
-1.Sınıfta yazdığım satranç kodu. Bu kodu yazarken 2 boyutlu listeleri bilmediğim için sadece 1 boyutlu listeler kullanmıştım. 
+1.Sınıfta yazdığım satranç kodu.
 
 Oynamak için tahta.py çalıştırmalısınız.
 
