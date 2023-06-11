@@ -2,139 +2,149 @@ from time import sleep
 import pygame
 import Tahta
 
-def tahtayiciz(display):
+def tahta_ciz(display, tahta_boyutu, kare_boyutu):
     # Arkaplanı siyah yap
-    display.fill((0,0,0))
+    display.fill((0, 0, 0))
 
     # Beyaz kareleri ciz
-    for y in range(0,boardSize,squareSize):
-        start = 0 if y//squareSize % 2 == 0 else squareSize
-        for x in range(start,boardSize,squareSize*2):
-            pygame.draw.rect(display, (100 , 100 , 100), [x,y,squareSize,squareSize])
+    for y in range(0, tahta_boyutu, kare_boyutu):
+        baslangic = 0 if y // kare_boyutu % 2 == 0 else kare_boyutu
+        for x in range(baslangic, tahta_boyutu, kare_boyutu * 2):
+            pygame.draw.rect(display, (100, 100, 100), [x, y, kare_boyutu, kare_boyutu])
 
-def taslariciz():
-    t = Tahta.tahtaGuncelle(tahta , taslar)
-    if isinstance(t,int):
-        pygame.draw.rect(display,
-            (50*t+100 ,50*t+100  , 50*t+100 ),
-            [10,10,boardSize-20,boardSize-20],
-            border_radius=20
-        )
-        t = "Beyaz" if t == 1 else "Siyah"
-        text = font.render(str(t)+str(" Kaybetti."), False, (0,0,0))
+def taslari_ciz(display, taslar, kare_boyutu, font):
+    for tas in taslar:
+        renk = 50 * tas.takim + 100
 
-        textRect = text.get_rect()
+        pygame.draw.rect(display, (renk, renk, renk),
+                         [tas.posX * kare_boyutu + 10, tas.posY * kare_boyutu + 10,
+                          kare_boyutu - 20, kare_boyutu - 20], border_radius=20)
 
-        textRect.center = (boardSize/2,boardSize/2)
+        metin = font.render(tas.isim, False, (0, 0, 0))
+        metin_dikdortgen = metin.get_rect()
+        metin_dikdortgen.center = (tas.posX * kare_boyutu + kare_boyutu / 2,
+                                   tas.posY * kare_boyutu + kare_boyutu / 2)
+        display.blit(metin, metin_dikdortgen)
 
-        display.blit(text, textRect)
-        return
-    for i in t:
-        renk = 50*i.takim+100
+def tehdit_edilen_kareleri_ciz(display, taslar, kare_boyutu):
+    for tas in taslar:
+        for pozisyon in tas.gidebilecegi_yerler():
+            renk = max(50, 255 * tas.takim)
+            pygame.draw.rect(display, (renk, renk, renk),
+                             [pozisyon[0] * kare_boyutu + 30, pozisyon[1] * kare_boyutu + 30,
+                              kare_boyutu - 60, kare_boyutu - 60], border_radius=20)
 
-        pygame.draw.rect(display,
-            (renk , renk, renk),
-            [i.posX*squareSize+10,i.posY*squareSize+10,squareSize-20,squareSize-20],
-            border_radius=20
-        )
-        text = font.render(i.isim, False, (0,0,0))
+def secili_tas_gidebileceği_yerleri_ciz(display,gidebilecegi_yerler,kare_boyutu):
+    for gidilecek_yer in gidebilecegi_yerler:
+        pygame.draw.rect(display, (255, 0, 0),
+            [gidilecek_yer[0] * kare_boyutu + 30, gidilecek_yer[1] * kare_boyutu + 30,
+            kare_boyutu - 60, kare_boyutu - 60], border_radius=20)
 
-        textRect = text.get_rect()
+def oyun_sonu_ekrani(display,takim,tahta_boyutu,font):
+    renk = 50*-takim+100
+    pygame.draw.rect(display,
+        (renk,renk,renk),
+        [10,10,tahta_boyutu-20,tahta_boyutu-20],
+        border_radius=20
+    )
+    takim = "Beyaz Kazandı." if takim == -1 else "Siyah Kazandı."
+    text = font.render(str(takim), False, (0,0,0))
+    textRect = text.get_rect()
+    textRect.center = (tahta_boyutu/2,tahta_boyutu/2)
+    display.blit(text, textRect)
 
-        textRect.center = (i.posX*squareSize+squareSize/2,i.posY*squareSize+squareSize/2)
-
-        display.blit(text, textRect)
-
-def tehditedilenyerlericiz():
-    for j in taslar:
-        for i in j.gidebilir():
-            renk = max(50,255*j.takim)
-            pygame.draw.rect(display,(renk,renk,renk),
-                [i[0]*squareSize+30,i[1]*squareSize+30,squareSize-60,squareSize-60],
-                border_radius=20
-            )
-
-def oyun(x,y):
-    global seciliTas
-    global gidebilir
-    global sira
-    global takim
-    # Secili tas varsa ve bu tasin gidebileceği bir 
-    # konuma tiklanmissa tasi oraya gotur
-    if seciliTas:  
-        if len(gidebilir) < 0:
-            return
-        if [x,y] in gidebilir:
-            Tahta.gotur(seciliTas,x,y,tahta)
-            sira += 1
-            seciliTas = ()
-            gidebilir = []
-            ekranguncelle(display)
-            return
-    # Secili tas yoksa 
-    # Tiklanan karede tas varsa onu sec ve gidebilecegi yerleri hesapla ve goster
-    gidebilir , tastakim = Tahta.gidebilir(x, y, tahta)
-    if len(gidebilir) == 0:
-        return
-    if takim[sira%2] == tastakim: 
-        seciliTas = (x,y)
-        for i in gidebilir:
-            renk = (255,0,0)
-            pygame.draw.rect(display,renk,
-                [i[0]*squareSize+30,i[1]*squareSize+30,squareSize-60,squareSize-60],
-                border_radius=20
-            )
-    pass
-
-def ekranguncelle(display,x = None ,y = None):
-    tahtayiciz(display)
-    taslariciz()
-    #tehditedilenyerlericiz()
-    if x != None and y != None:
-        oyun(x,y)
-
-    Tahta.yazdir(tahta, taslar)
-
-    # Flip the display
+    text = font.render("Oyunu kapatmak için tıkla.", False, (75,75,75))
+    textRect = text.get_rect()
+    textRect.center = (tahta_boyutu/2,9*tahta_boyutu/10)
+    display.blit(text, textRect)
     pygame.display.flip()
 
+def oyun_dongusu(display, tahta_boyutu, kare_boyutu, font):
+    secili_tas = None
+    gidebilecegi_yerler = []
+    sira = 0
+    takimlar = [1, -1]
 
-pygame.init()
+    satranc_tahtasi, taslar = Tahta.oyunu_baslat()
 
-# Ekran ayarla
-boardSize = 400
-squareSize = boardSize // 8
-display = pygame.display.set_mode([boardSize, boardSize])
+    ekran_guncelle(display, satranc_tahtasi, taslar, secili_tas, gidebilecegi_yerler, font, tahta_boyutu, kare_boyutu)
 
-# Font ayarla
-font = pygame.font.Font('freesansbold.ttf', 32)
+    kontrol = True
+    while kontrol:
+        sleep(0.05)
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                return
 
-# Pencere başlığı
-pygame.display.set_caption("Satranç")
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                mouse_tiklamalari = pygame.mouse.get_pressed()
 
-# Oyun değişkenleri
-seciliTas : tuple = ()
-gidebilir : list = []
-takim : list = [1,-1]
-sira : int = 0
+                if mouse_tiklamalari[0]:
+                    x, y = map(lambda v: v // kare_boyutu, pygame.mouse.get_pos())
+                    if secili_tas:
+                        if [x, y] in gidebilecegi_yerler:
+                            Tahta.tasi_oyna(secili_tas, x, y, satranc_tahtasi)
+                            sira += 1
+                            secili_tas = None
+                            gidebilecegi_yerler = []
+                            kontrol = ekran_guncelle(display, satranc_tahtasi, taslar, secili_tas, gidebilecegi_yerler, font, tahta_boyutu, kare_boyutu)
+                            continue
+                        secili_tas = None
 
-# Tahtayı baslat
-tahta , taslar = Tahta.oyunuBaslat()
+                    gidebilecegi_yerler, tas_takimi = Tahta.gidebilecegi_yerler(x, y, satranc_tahtasi)
 
-#Ekran çizdir
-ekranguncelle(display)
+                    if not gidebilecegi_yerler:
+                        continue
 
-running = True
-while running:
-    sleep(.05)
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            # Pencerenin X butonuna basıldıysa devam etmeye gerek yok
-            running = False
-            break
-        if event.type == pygame.MOUSEBUTTONDOWN:
-            mouse_presses = pygame.mouse.get_pressed()
-            if mouse_presses[0]:
-                x , y = map(lambda v : v // squareSize , pygame.mouse.get_pos())
-                ekranguncelle(display,x,y)
-pygame.quit()
+                    if takimlar[sira % 2] == tas_takimi:
+                        secili_tas = (x, y)
+
+                kontrol = ekran_guncelle(display, satranc_tahtasi, taslar, secili_tas, gidebilecegi_yerler, font, tahta_boyutu, kare_boyutu)
+    
+    while True:
+        # Oyun bittikten sonra ekrana  
+        # tiklanirsa oyunu kapat
+        sleep(0.5)
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT or event.type == pygame.MOUSEBUTTONDOWN:
+                pygame.quit()
+                return
+    
+
+def ekran_guncelle(display, satranc_tahtasi=None, taslar=None, secili_tas=None, gidebilecegi_yerler=None, font=None, tahta_boyutu=400, kare_boyutu=50):
+    k = Tahta.tahta_guncelle(satranc_tahtasi, taslar)
+    if isinstance(k,int):
+        oyun_sonu_ekrani(display,k,tahta_boyutu,font)
+        return False
+    tahta_ciz(display, tahta_boyutu, kare_boyutu)
+    if satranc_tahtasi and taslar:
+        taslari_ciz(display, taslar, kare_boyutu, font)
+        #tehdit_edilen_kareleri_ciz(display, taslar, kare_boyutu)
+        if secili_tas and gidebilecegi_yerler:
+            secili_tas_gidebileceği_yerleri_ciz(display,gidebilecegi_yerler,kare_boyutu)
+    
+    if satranc_tahtasi:
+        #Tahta.tehdit_yazdir(satranc_tahtasi, taslar)
+        pass
+
+    pygame.display.flip()
+    return True
+
+def main():
+    pygame.init()
+
+    tahta_boyutu = 600
+    kare_boyutu = tahta_boyutu // 8
+    display = pygame.display.set_mode([tahta_boyutu, tahta_boyutu])
+    font = pygame.font.Font('freesansbold.ttf', 32)
+    pygame.display.set_caption("Satranç")
+
+    oyun_dongusu(display, tahta_boyutu, kare_boyutu, font)
+    
+    pygame.quit()
+
+    return 0
+
+if __name__ == '__main__':
+    main()
