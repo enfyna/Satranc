@@ -17,6 +17,8 @@ Oyun ilk açıldığında sıra beyazda olduğu için beyaz bir taşa tıklayıp
 ## Ekran görüntüleri
 ![Screenshot_2023-06-12_12-03-00](https://github.com/enfyna/Satranc/assets/91965312/b92fbe6b-e3ee-40cc-8a43-e09265ae2dbe)
 
+- Giriş ekranı
+
 ![Screenshot_2023-06-12_12-04-27](https://github.com/enfyna/Satranc/assets/91965312/dc9357ff-286c-4f90-8326-01de6d5e69e7)
 
 - Taşa tıklanınca gidebileceği konumlar kırmızı nokta ile gösteriliyor.
