@@ -6,13 +6,12 @@ Artık pygame kütüphanesinide kullanarak bir grafiksel arayüz ile satranç ta
 ## Kurulum
 
 1. Kodları indirip bilgisayarınızda bir klasöre çıkarın. 
-2. Python pygame kütüphanesi ***python -m pip install pygame*** komutu ile kurun.
+2. Python pygame kütüphanesini ***python -m pip install pygame*** komutu ile kurun.
 3. ***Satranc.py*** dosyasını python ile çalıştırın
 
 ## Nasıl oynanır ? 
 
-Oyunda tek kişilik mod yok o yüzden 2 kişi oynamalı.
-Oyun ilk açıldığında sıra beyazda olduğu için beyaz bir taşa tıklayıp taşı hareket ettirerek oyunu oynamaya başlayabilirsiniz.
+Oyun 2 kişi ile oynanır. Oyuncular sırayla istedikleri taşı oynayabilir. İlk beyaz başlar. Diğer oyuncunun şahını yiyen kazanır.
 
 ## Ekran görüntüleri
 ![Screenshot_2023-06-12_12-03-00](https://github.com/enfyna/Satranc/assets/91965312/b92fbe6b-e3ee-40cc-8a43-e09265ae2dbe)
