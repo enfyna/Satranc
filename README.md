@@ -1,13 +1,14 @@
 # Satranc
 
 1.Sınıfta yazdığım kodu iyileştirmeye çalıştım. (1.sınıfta yazdığım kodlar ***eski*** klasöründe.). 
-Artık pygame kütüphanesinide kullanarak bir grafiksel arayüz ile satranç tahtasını ekranda gösterebiliyorum.   
+Artık pygame kütüphanesini kullanarak bir grafiksel arayüz ile satranç tahtasını ekranda gösterebiliyorum.   
 
 ## Kurulum
 
 1. Kodları indirip bilgisayarınızda bir klasöre çıkarın. 
 2. Python pygame kütüphanesini ***python -m pip install pygame*** komutu ile kurun.
-3. ***Satranc.py*** dosyasını python ile çalıştırın
+3. ***Satranc.py*** dosyasını python ile çalıştırın.
+4. Eğer pencere boyutu büyük/küçük gelirse istediğiniz pencere boyutunu argüman olarak verebilirsiniz. Örneğin ***python Satranc.py 800*** yazarak çalıştırırsanız 800x800 boyutunda bir pencere ile oynayabilirsiniz. 
 
 ## Nasıl oynanır ? 
 
